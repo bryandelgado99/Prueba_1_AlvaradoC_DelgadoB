@@ -7,12 +7,10 @@ import java.net.InetAddress;
 public class Client {
 
     public static void main(String[] args) {
-        DatagramSocket socket_Client = null;
-        InetAddress serverAddress = null;
+        InetAddress serverAddress;
         int serverPort = 5000;
-        try {
+        try (DatagramSocket socket_Client = new DatagramSocket()) {
             // Crear un socket UDP
-            socket_Client = new DatagramSocket();
             serverAddress = InetAddress.getByName("localhost");
 
             // Entrada estándar
@@ -23,7 +21,7 @@ public class Client {
 
             String datosRecibidos;
 
-            while (true) {
+            do {
                 // Envío de datos
                 System.out.print("Escriba su respuesta: ");
                 String answers = scanner.readLine();
@@ -37,16 +35,9 @@ public class Client {
                 datosRecibidos = new String(receivePacket.getData(), 0, receivePacket.getLength());
                 System.out.println("Server: " + datosRecibidos);
 
-                if (datosRecibidos.equals("No more questions")) {
-                    break;
-                }
-            }
+            } while (!datosRecibidos.equals("No more questions"));
         } catch (IOException e) {
-           throw new RuntimeException();
-        } finally {
-            if (socket_Client != null) {
-                socket_Client.close();
-            }
+            throw new RuntimeException();
         }
     }
 }
