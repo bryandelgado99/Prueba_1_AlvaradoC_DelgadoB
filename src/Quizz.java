@@ -17,6 +17,6 @@ public class Quizz {
     }
 
     public boolean _isCorrectAnswer(String Answer) {
-        return Answer.equals(Answer);
+        return Answer.equalsIgnoreCase(Answer);
     }
 }

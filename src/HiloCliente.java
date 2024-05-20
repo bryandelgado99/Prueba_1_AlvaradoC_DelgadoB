@@ -2,16 +2,19 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.List;
 import java.util.Scanner;
 
 
 public class HiloCliente extends Thread {
-    DatagramSocket socket_Client;
-    DatagramPacket receivePacket;
+    private final DatagramSocket socket_Client;
+    private final DatagramPacket receivePacket;
+    private final List<Quizz> questions;
 
     public HiloCliente(DatagramSocket socket_Client, DatagramPacket receivePacket) {
         this.socket_Client = socket_Client;
         this.receivePacket = receivePacket;
+        this.questions = Server.getQuestions();
     }
 
     @Override
@@ -19,27 +22,35 @@ public class HiloCliente extends Thread {
         try {
             Scanner scanner = new Scanner(System.in);
 
-            // Recepción de datos
-            byte[] receiveData = new byte[1024]; // Buffer for incoming data
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            socket_Client.receive(receivePacket);
+            // Receive question index from server
+            String receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            int questionIndex = Integer.parseInt(receivedData.trim());
+            Quizz question = questions.get(questionIndex);
 
-            String datosRecibidos = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            System.out.println("Los datos recibidos son: " + datosRecibidos);
+            // Display the question
+            System.out.printf("Pregunta: %s%n", question.getQuestion());
 
-            // Envío de datos
+            // Receive answer from user
             System.out.print("Escriba su respuesta: ");
-            String mensajeSalida = scanner.nextLine();
-            byte[] sendData = mensajeSalida.getBytes();
+            String userAnswer = scanner.nextLine();
 
+            // Compare user's answer with the correct answer
+            String correctAnswer = question.getAnswer();
+            if (userAnswer.equalsIgnoreCase(correctAnswer)) {
+                System.out.println("¡Respuesta correcta!");
+            } else {
+                System.out.printf("Respuesta incorrecta. La respuesta correcta es: %s%n", correctAnswer);
+            }
+
+            // Send acknowledgment to the server
+            byte[] acknowledgment = "ACK".getBytes();
             InetAddress clientAddress = receivePacket.getAddress();
             int clientPort = receivePacket.getPort();
-
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, clientPort);
-            socket_Client.send(sendPacket);
+            DatagramPacket acknowledgmentPacket = new DatagramPacket(acknowledgment, acknowledgment.length, clientAddress, clientPort);
+            socket_Client.send(acknowledgmentPacket);
 
         } catch (IOException e) {
-            throw new RuntimeException(e); // Throwing the actual exception
+            e.printStackTrace();
         }
     }
 }

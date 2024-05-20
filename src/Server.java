@@ -7,7 +7,6 @@ import java.util.List;
 public class Server {
 
     private static final List<Quizz> questions;
-
     static {
         questions = new ArrayList<>();
         questions.add(new Quizz("¿A qué equivale la F = m*a en la atracción planetaria?", "gravedad"));
@@ -21,31 +20,32 @@ public class Server {
         questions.add(new Quizz("¿Quienes son los fundadores de Roma, según la mitología romana?", "Romulo y Remo"));
     }
 
-    public static void main(String[] args) {
-        try {
-            DatagramSocket socket_Server = new DatagramSocket(5000);
-            System.out.println("Servidor esperando conexiones...\n");
+    public static void main() {
 
-            while (true) {
+        try (DatagramSocket socket = new DatagramSocket(5000)) {
+            System.out.println("\n -------- Bienvenido a QuizzON ------- \n");
+            System.out.println("\n Las áreas disponibles son: \n");
+            System.out.println("1. Física \n");
+            System.out.println("2. Química \n");
+            System.out.println("3. Matemática \n");
+
+            System.out.println("Servidor esperando conexiones.....");
+
+            while (true){
                 byte[] bufferEntrada = new byte[1024];
                 DatagramPacket paqueteEntrada = new DatagramPacket(bufferEntrada, bufferEntrada.length);
-                socket_Server.receive(paqueteEntrada);
+                socket.receive(paqueteEntrada);
 
-                Thread hilocliente = new HiloCliente(socket_Server, paqueteEntrada);
-                hilocliente.start();
+                Thread Cliente = new HiloCliente(socket, paqueteEntrada);
+                Cliente.start();
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static List<Quizz> getQuestions() {
-        System.out.println("\n -------- Bienvenido a QuizzON ------- \n");
-        System.out.println("\n Las áreas disponibles son: \n");
-        System.out.println("1. Física \n");
-        System.out.println("2. Química \n");
-        System.out.println("3. Matemática \n");
-
+    static List<Quizz> getQuestions() {
         return questions;
     }
 }
