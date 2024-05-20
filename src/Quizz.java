@@ -8,18 +8,15 @@ public class Quizz {
             this.Answer = Answer;
         }
 
-        public String getQuestion() {
-            return Question;
-        }
-
-        public String getAnswer() {
-            return Answer;
-        }
-
-        public boolean _isCorrectAnswer(String Answer) {
-            return Answer.equals(Answer);
-        }
+    public String getQuestion() {
+        return Question;
     }
 
+    public String getAnswer() {
+        return Answer;
+    }
 
+    public boolean _isCorrectAnswer(String Answer) {
+        return Answer.equals(Answer);
+    }
 }

@@ -29,7 +29,7 @@ public class Server {
             while (true) {
                 byte[] bufferEntrada = new byte[1024];
                 DatagramPacket paqueteEntrada = new DatagramPacket(bufferEntrada, bufferEntrada.length);
-                socket.receive(paqueteEntrada);
+                socket_Server.receive(paqueteEntrada);
 
                 Thread hilocliente = new HiloCliente(socket_Server, paqueteEntrada);
                 hilocliente.start();
