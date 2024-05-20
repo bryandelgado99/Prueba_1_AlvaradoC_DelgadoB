@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -9,13 +10,13 @@ public class HiloCliente extends Thread {
     private final DatagramSocket socket;
     private final DatagramPacket receivePacket;
     private final List<Quizz> questions;
-    private int totalPoints;
+    private final List<Integer> pointsPerQuestion; // Lista para almacenar los puntos ganados por cada pregunta
 
     public HiloCliente(DatagramSocket socket, DatagramPacket receivePacket) {
         this.socket = socket;
         this.receivePacket = receivePacket;
         this.questions = Server.getQuestions();
-        this.totalPoints = 0;
+        this.pointsPerQuestion = new ArrayList<>();
     }
 
     @Override
@@ -39,12 +40,15 @@ public class HiloCliente extends Thread {
         if (userAnswer.equalsIgnoreCase(correctAnswer)) {
             System.out.println("¡Respuesta correcta!");
             int pointsEarned = question.getValue();
-            totalPoints = pointsEarned + pointsEarned; // Sumar puntos
-            System.out.printf("Has ganado %d puntos!%n", pointsEarned);
+            pointsPerQuestion.add(pointsEarned); // Agregar puntos ganados al array
         } else {
             System.out.printf("Respuesta incorrecta. La respuesta correcta es: %s%n", correctAnswer);
-            System.out.println("Has ganado 0 puntos!");
         }
+
+        System.out.println(STR."\n-----------------------------------------------");
+        System.out.println(STR."Total de puntos obtenidos: \{getTotalPoints()}");
+        System.out.println(STR."-----------------------------------------------\n");
+
 
         // Send acknowledgment to the server
         byte[] acknowledgment = "ACK".getBytes();
@@ -57,8 +61,14 @@ public class HiloCliente extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        // Imprimir la suma total de puntos ganados
-        System.out.printf("Total de puntos ganados: %d%n", totalPoints);
+    // Método para obtener la suma total de puntos ganados
+    public int getTotalPoints() {
+        int totalPoints = 0;
+        for (int points : pointsPerQuestion) {
+            totalPoints += points;
+        }
+        return totalPoints;
     }
 }

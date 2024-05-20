@@ -27,7 +27,7 @@ public class Server {
             System.out.println("2. Química \n");
             System.out.println("3. Matemática \n");
 
-            System.out.println("Servidor esperando conexiones.....");
+            System.out.println("Servidor esperando conexiones.....\n\n");
 
             while (true){
                 byte[] bufferEntrada = new byte[1024];
