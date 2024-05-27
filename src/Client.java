@@ -1,37 +1,57 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Scanner;
 
 public class Client {
-
-    static int puerto = 5000;
-
     public static void main(String[] args) {
-        try (DatagramSocket socket = new DatagramSocket()) {
-            InetAddress server_IP = InetAddress.getByName("localhost");
-            BufferedReader scanner = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            DatagramSocket socket = new DatagramSocket();
+            //cambiar dependiendo la IP del servidor
+            InetAddress direccionServidor = InetAddress.getByName("localhost");
+            int puertoServidor = 5000;
+            Scanner scanner = new Scanner(System.in);
 
-            while (true) {
-                System.out.printf("Cliente: ");
-                String answer = scanner.readLine();
-                byte[] sendData = answer.getBytes();
-                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, server_IP, puerto);
-                socket.send(sendPacket);
+            // Enviar un mensaje inicial al servidor para iniciar la comunicación
+            byte[] bufferInicial = "Hola servidor".getBytes();
+            DatagramPacket paqueteInicial = new DatagramPacket(bufferInicial, bufferInicial.length, direccionServidor, puertoServidor);
+            socket.send(paqueteInicial);
 
-                byte[] receiveData = new byte[1024];
-                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-                socket.receive(receivePacket);
-                String question = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                // Display question with keyboard input prompt (formatted)
+            for (int i = 0; i < 5; i++) {
+                // Recibir pregunta del servidor
+                byte[] bufferEntrada = new byte[1024];
+                DatagramPacket paqueteEntrada = new DatagramPacket(bufferEntrada, bufferEntrada.length);
+                socket.receive(paqueteEntrada);
 
-                if (question.equals("No more questions")) {
-                    break;
-                }
+                String pregunta = new String(paqueteEntrada.getData(), 0, paqueteEntrada.getLength());
+                System.out.println(STR."Pregunta: \{pregunta}");
+
+                // Enviar respuesta al servidor
+                System.out.print("Respuesta: ");
+                String respuesta = scanner.nextLine();
+                byte[] bufferSalida = respuesta.getBytes();
+                DatagramPacket paqueteSalida = new DatagramPacket(bufferSalida, bufferSalida.length, direccionServidor, puertoServidor);
+                socket.send(paqueteSalida);
+
+                // Recibir confirmación del servidor
+                byte[] bufferConfirmacion = new byte[1024];
+                DatagramPacket paqueteConfirmacion = new DatagramPacket(bufferConfirmacion, bufferConfirmacion.length);
+                socket.receive(paqueteConfirmacion);
+
+                String confirmacion = new String(paqueteConfirmacion.getData(), 0, paqueteConfirmacion.getLength());
+                System.out.println(STR."Confirmación: \{confirmacion}");
             }
-        } catch (IOException e) {
+
+            // Recibir puntaje final del servidor
+            byte[] bufferPuntaje = new byte[1024];
+            DatagramPacket paquetePuntaje = new DatagramPacket(bufferPuntaje, bufferPuntaje.length);
+            socket.receive(paquetePuntaje);
+
+            String puntajeFinal = new String(paquetePuntaje.getData(), 0, paquetePuntaje.getLength());
+            System.out.println(STR."Puntaje final: \{puntajeFinal}");
+
+            socket.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
