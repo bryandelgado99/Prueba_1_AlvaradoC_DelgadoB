@@ -9,7 +9,7 @@ public class Client {
             DatagramSocket socket = new DatagramSocket();
             //cambiar dependiendo la IP del servidor
             InetAddress direccionServidor = InetAddress.getByName("localhost");
-            int puertoServidor = 5000;
+            int puertoServidor = 4000;
             Scanner scanner = new Scanner(System.in);
 
             // Enviar un mensaje inicial al servidor para iniciar la comunicación
